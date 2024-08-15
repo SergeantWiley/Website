@@ -1,38 +1,53 @@
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
 def show_neuron():
-    st.title("Steven Johnson")
-    st.subheader("Data Analytics & Machine Learning Specialist")
-    
-    st.write('''Greetings! I'm Steven Johnson, a dedicated developer with a passion for Data Analytics and Machine Learning. 
-    I currently teach modern technology and programming to young students at The Coder School.''')
-    
-    st.markdown("**Connect with me:**")
-    st.markdown("[LinkedIn](https://www.linkedin.com/in/sj-lid/) | [GitHub](https://github.com/SergeantWiley/) | [Email](mailto:steven@example.com)")
-    
-    st.subheader("About Me")
-    st.write('''
-    My journey in coding began in 2016, and since then, I’ve consistently pushed the boundaries of my skills and knowledge:
-    
-    - **2017**: Collaborated on a team to design a pathfinding algorithm for navigating unpredictable environments.
-    - **2018**: Launched my first profitable business selling 3D prints, while also working part-time at my first job.
-    - **2019**: Delved deep into linear algebra, exploring multi-dimensional mathematics.
-    - **2020**: Expanded my entrepreneurial ventures by buying and reselling candy.
-    - **2021**: Discovered my passion for Data Science, extensively studying internet traffic and honing my Python skills.
-    - **2022**: Joined Aramark, where I developed projects like NOCAP and STARS.
-    - **2023**: Transitioned to full-time skill development, culminating in my completion of Coding Temple and a newfound passion for teaching.
-    
-    Over the past eight years, I’ve built a foundation of knowledge and experience that I’m eager to share with others, helping them avoid the pitfalls I encountered along the way.
-    ''')
-    st.subheader("Companies I've Worked With")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.header("Aramark")
-        st.write("One of the largest Food Companies in the world")
-        st.image("aramark.png", width=300, caption="Aramark")
+    st.title("Lone Neuron")
+    st.subheader("A Simple Neural Network")
 
-    with col2:
-        st.header("The Coder School")
-        st.write("Private Education for young students coding.")
-        st.image("the-coder-school.png", width=100, caption="The Coder School")
+    st.write('''Take a peek inside the structure of neural networks using Lone Neuron. 
+    See what happens behind the scenes as a neuron transforms incoming data.''')
+    st.write('''
+    - **Step 1**: Create the neuron layer using the slider
+    - **Step 2**: Adjust the entropy, which controls the randomness of weights and biases
+    - **Step 3**: Adjust the data variation, which shows how the training data is offset from the target data
+    - **Step 4**: Use the sliders to minimize the MSE between the transformed data and the target data
+    ''')
+
+    # Step 1: Number of neurons
+    num_neurons = st.slider('Select the number of neurons in the layer', 1, 10, 3)
+    entropy = st.slider('Entropy (randomness of weights and biases)', 1.5, 10.0, 1.5, 0.5)
+    target_variation = st.slider('Data Variation (Offset from Target)', 1.0, 2.0, 1.0, 0.1)
+    sample_size = st.slider('Number of samples', 1, 10, 1, 1)
+
+    # Adjust target variation based on sample size
+    target_variation +=  target_variation / np.random.uniform(1, sample_size)
+    weights = np.random.uniform(0, entropy, num_neurons)
+    biases = np.random.uniform(0, entropy, num_neurons)
+    mse_values = []
+
+    # Compute MSE for each sample
+    for _ in range(sample_size):
+        training_data = np.random.uniform(0, entropy, num_neurons)
+        target_data = training_data + target_variation
+
+        # Process training data through the neurons
+        transformed_data = training_data * weights + biases
+        mse = np.mean((transformed_data - target_data) ** 2)
+        mse_values.append(mse)
+
+    # Plot the MSE values as a bar graph
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.bar(range(len(mse_values)), mse_values, color='skyblue')
+
+    # Adding labels and title
+    ax.set_xlabel('Sample Index')
+    ax.set_ylabel('MSE Value')
+    ax.set_title('MSE Values by Sample Index')
+    ax.set_xticks(range(len(mse_values)))
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+
+
